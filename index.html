@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diana peenk</title>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            user-select: none; /* Empêche la sélection de texte et d'images */
+        }
+
+        nav {
+            position: fixed;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            list-style: none;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--secondary-color);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 0 20px;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 50px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .photo-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            cursor: pointer;
+            background: white;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            transition: 0.5s;
+            pointer-events: none; /* Désactive les interactions avec les images */
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 20px;
+            color: white;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .photo-card:hover .overlay {
+            opacity: 1;
+        }
+
+        /* Styles pour la lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            cursor: pointer;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .lightbox-img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            animation: fadeIn 0.3s;
+            pointer-events: none; /* Désactive les interactions avec les images */
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 3000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Styles pour la section protégée par mot de passe */
+        .protected-gallery {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 50px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Styles pour le formulaire de mot de passe */
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .password-form input {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+        }
+
+        .password-form button {
+            padding: 10px 20px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .password-form button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Styles pour les informations de contact */
+        .contact {
+            padding: 50px 20px;
+            text-align: center;
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .contact a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .contact a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#accueil">Accueil</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#protected-portfolio">Photos Protégées</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero" id="accueil">
+        <h1>diana peenk</h1>
+        <p>Photographe Professionnel</p>
+    </section>
+
+    <section class="gallery" id="portfolio">
+        <div class="photo-card">
+            <img src="photo/b7ar/471548045_478947958193453_4553656519857676561_n.jpg" alt="Photo 1" onclick="openLightbox(this)">
+            <div class="overlay">
+                <h3>Titre Photo 1</h3>
+                <p>Description</p>
+            </div>
+        </div>
+
+        <div class="photo-card">
+            <img src="photo/b7ar/472232521_963031909217869_438807231370958204_n.jpg" alt="Photo 2" onclick="openLightbox(this)">
+            <div class="overlay">
+                <h3>Titre Photo 2</h3>
+                <p>Description</p>
+            </div>
+        </div>
+        <!-- Répéter pour les autres photos -->
+    </section>
+
+    <section class="password-form" id="protected-portfolio">
+        <h2>Accès Protégé</h2>
+        <input type="password" id="password" placeholder="Entrez le mot de passe">
+        <button onclick="checkPassword()">Valider</button>
+    </section>
+
+    <section class="protected-gallery" id="protected-gallery">
+        <div class="photo-card">
+            <img src="photo/protected/photo1.jpg" alt="Photo Protégée 1">
+            <div class="overlay">
+                <h3>Titre Photo Protégée 1</h3>
+                <p>Description</p>
+            </div>
+        </div>
+        <div class="photo-card">
+            <img src="photo/protected/photo2.jpg" alt="Photo Protégée 2">
+            <div class="overlay">
+                <h3>Titre Photo Protégée 2</h3>
+                <p>Description</p>
+            </div>
+        </div>
+        <!-- Répéter pour les autres photos protégées -->
+    </section>
+
+    <section class="contact" id="contact">
+        <h2>Contactez-moi</h2>
+        <p>Vous pouvez me suivre sur Instagram :</p>
+        <p><a href="https://www.instagram.com/diana_peenk/" target="_blank">@diana_peenk</a></p>
+    </section>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="close-btn">&times;</span>
+        <div class="lightbox-content">
+            <img class="lightbox-img" id="lightbox-img">
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        // Initialisation de AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 200
+        });
+
+        // Smooth scroll pour la navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Lightbox
+        function openLightbox(element) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            
+            lightbox.style.display = 'block';
+            lightboxImg.src = element.src;
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        // Fermer avec la touche Échap
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // Vérification du mot de passe
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            const correctPassword = 'dianaapeenk2007'; // Remplacez par le mot de passe que vous souhaitez utiliser
+
+            if (password === correctPassword) {
+                document.getElementById('protected-portfolio').style.display = 'none';
+                document.getElementById('protected-gallery').style.display = 'grid';
+            } else {
+                alert('Mot de passe incorrect');
+            }
+        }
+
+        // Empêcher les captures d'écran
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'PrintScreen') {
+                alert('Les captures d\'écran sont désactivées sur ce site.');
+                event.preventDefault();
+                navigator.clipboard.writeText('');
+            }
+        });
+
+        window.addEventListener('focus', function() {
+            setTimeout(() => {
+                navigator.clipboard.writeText('');
+            }, 100);
+        });
+
+        // Empêcher le clic droit
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Empêcher Ctrl+U
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'u') {
+                alert('Cette action est désactivée.');
+                event.preventDefault();
+            }
+        });
+
+        // Animations GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Animation du hero
+        gsap.from('.hero h1', {
+            duration: 1.5,
+            y: -50,
+            opacity: 0,
+            ease: 'power3.out',
+        });
+
+        gsap.from('.hero p', {
+            duration: 1.5,
+            y: 50,
+            opacity: 0,
+            delay: 0.5,
+            ease: 'power3.out',
+        });
+
+        // Animation des cartes de la galerie
+        gsap.from('.photo-card', {
+            duration: 1,
+            y: 50,
+            opacity: 0,
+            stagger: 0.2,
+            scrollTrigger: {
+                trigger: '.gallery',
+                start: 'top 80%',
+                toggleActions: 'play none none none',
+            },
+        });
+
+        // Animation du menu de navigation
+        gsap.from('nav ul li', {
+            duration: 1,
+            y: -20,
+            opacity: 0,
+            stagger: 0.2,
+            delay: 1,
+        });
+    </script>
+</body>
+</html>
